@@ -221,3 +221,67 @@ public class AppConfig {
 
 
 
+# 第三章 AOP
+
+## 4.3.6 引入
+
+某个服务并不是自己所提供，而是别人提供的，我们不能修改它，这时 Spring 还允许增强这个接口 的功能，我们可以为这个接口引入新的接口 
+
+````java
+@Aspect
+public class MyAspect {
+@DeclareParents(
+value= "com.springboot.chapter4.aspect.service.impl.UserService工mpl ＋”，
+defaultimpl=UserValidator工mpl.class)
+public UserValidator userValidator;
+    ......
+}
+````
+
+注解```＠DeclareParents` ， 它的作用是引入新的类来增强服务 ， 它有两个必须
+配置的属性 `value` 和 `defaultlmpl` 。
+• value：指向你要增强功能的目标对象,(全限定名) 这里是要增强 UserServicelmpl 对象 ， 因此可以看到
+配置为 com .springboot.chapter4.aspect. se凹ice.impl.UserServicelmpl**＋**。
+• defaultlmpl ： 引入增强功能的类这里配置为 UserValidatorlmpl ，用来提供校验用户是否为
+空的功能 。 
+
+Spring会把 UserService 和 UserValidator 两个接口传递进去 ，让代理对象下挂到这两个接 口下， 这样这个代理对象就能够相互转换并且使用它们的方法了 
+
+## 4.3.7 通知获取参数
+
+有时候我们希望能够传递参数给通知，这也是允许的，我们只需要在切点处加入对应的正则式就可以了。当然 ，对于非环绕通知还可以使用一个连接点 (JoinPoint）类型的参数 ， 通过它也可以获取参数。 
+
+ ```java
+ @Before (” pointCut () && args(user)” )
+public void beforeParam (Join Point point , User user) {
+Object[] args = point.getArgs ( ) ;
+System . out.println (”before ..... . ” ) ;
+    ...
+}
+ ```
+
+正则式 pointCut() && args(user） 中 ， pointCut（）表示启用原来定义切点 的规则 ，并且约定将连接点（目标对象方法）名称为 user 的参数传递进来。 这里要注意 ， JoinPoint 类型 的参数对于非环绕通知而
+言， Spring AOP 会自动地把它传递到通知中：对于环绕通知而言，可以使用 ProceedingJoinPoint 类型的参数。之前我们讨论过它的结构，使用它将允许进行目标对象的回调 
+
+
+
+## 4.4多个切面
+
+切面的执行顺序是混乱的，而在我做的测试中也没有找到多个切面执行顺序的规律。 但是，在很多时候，开发者需要确定切面的执行顺序，来决定哪些切面先执行，哪些切面后执行。为此,Spring 提供了一个注解``＠Order`` 和一个接口 Ordered，我们可以使用它们的任意一个指定切面的顺序。 下面我们先展示＠Order，例如，我们指定 MyAspectl 的顺序为 1  
+
+```.java
+
+
+@Aspect
+@Order (1)
+public class MyAspectl {
+	...
+}
+```
+
+对于前置通知（ before ）都是从小到大运行的，而对于后置通知和返回通知都是从大到小运行的，这就是一个典型的责任链模式的顺序 。 
+
+
+
+# 第五章 访问数据库
+
